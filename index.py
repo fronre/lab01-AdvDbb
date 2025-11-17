@@ -59,3 +59,29 @@ def Calculate_free_space(page):
     slot_count, offset = read_footer(page)
     used = offset + (slot_count * 4 + 4)
     return PAGE_SIZE - used
+
+def insert_record_data_to_page_data(page, record):
+    if not isinstance(record, (bytes, bytearray)):
+        raise TypeError("Invalid record")
+
+    slot_count, offset = read_footer(page)
+    length = len(record)
+    free = PAGE_SIZE - (offset + (slot_count * 4 + 4))
+
+    if length + 4 > free:
+        raise ValueError("No space")
+
+    buf = bytearray(page)
+
+    if length:
+        fmt = f'{length}B'
+        struct.pack_into(fmt, buf, offset, *record)
+
+    pos = slot_entry_pos(slot_count)
+    struct.pack_into('>H', buf, pos, offset)
+    struct.pack_into('>H', buf, pos + 2, length)
+
+    struct.pack_into('>H', buf, 4094, offset + length)
+    struct.pack_into('>H', buf, 4092, slot_count + 1)
+
+    return bytes(buf)
