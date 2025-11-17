@@ -22,3 +22,22 @@ def read_page(file_name, page_number):
 
         return data
 
+def append_page(file_name, page_data):
+    if len(page_data) != PAGE_SIZE:
+        raise ValueError("Invalid page size")
+    with open(file_name, 'ab') as f:
+        f.write(page_data)
+
+def write_page(file_name, page_number, page_data):
+    if len(page_data) != PAGE_SIZE:
+        raise ValueError("Invalid page size")
+
+    size = os.path.getsize(file_name)
+    last = size // PAGE_SIZE - 1
+
+    if page_number < 0 or page_number > last:
+        raise ValueError("Invalid page number")
+
+    with open(file_name, 'r+b') as f:
+        f.seek(page_number * PAGE_SIZE)
+        f.write(page_data)
