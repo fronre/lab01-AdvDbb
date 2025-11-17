@@ -54,3 +54,8 @@ def read_footer(page):
 
 def slot_entry_pos(i):
     return PAGE_SIZE - 4 - (i + 1) * 4
+
+def Calculate_free_space(page):
+    slot_count, offset = read_footer(page)
+    used = offset + (slot_count * 4 + 4)
+    return PAGE_SIZE - used
