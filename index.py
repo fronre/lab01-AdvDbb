@@ -108,4 +108,18 @@ def insert_record_to_file(file_name, record):
     append_page(file_name, updated)
     return pages, 0
 
+def get_record_from_page(page, record_id):
+    slot_count, _ = read_footer(page)
+
+    if record_id < 0 or record_id >= slot_count:
+        raise IndexError("Invalid record")
+
+    pos = slot_entry_pos(record_id)
+    offset, length = struct.unpack('>HH', page[pos:pos + 4])
+
+    if length == 0:
+        return b''
+
+    return page[offset:offset + length]
+
 
