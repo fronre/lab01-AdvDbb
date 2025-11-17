@@ -46,3 +46,11 @@ def new_empty_page_bytes():
     struct.pack_into('>H', buf, 4092, 0)
     struct.pack_into('>H', buf, 4094, 0)
     return bytes(buf)
+
+def read_footer(page):
+    slot = struct.unpack('>H', page[4092:4094])[0]
+    offset = struct.unpack('>H', page[4094:4096])[0]
+    return slot, offset
+
+def slot_entry_pos(i):
+    return PAGE_SIZE - 4 - (i + 1) * 4
