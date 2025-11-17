@@ -41,3 +41,8 @@ def write_page(file_name, page_number, page_data):
     with open(file_name, 'r+b') as f:
         f.seek(page_number * PAGE_SIZE)
         f.write(page_data)
+def new_empty_page_bytes():
+    buf = bytearray(PAGE_SIZE)
+    struct.pack_into('>H', buf, 4092, 0)
+    struct.pack_into('>H', buf, 4094, 0)
+    return bytes(buf)
