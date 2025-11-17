@@ -85,3 +85,27 @@ def insert_record_data_to_page_data(page, record):
     struct.pack_into('>H', buf, 4092, slot_count + 1)
 
     return bytes(buf)
+
+def insert_record_to_file(file_name, record):
+    if not os.path.exists(file_name):
+        create_heap_file(file_name)
+
+    size = os.path.getsize(file_name)
+    pages = size // PAGE_SIZE
+
+    for p in range(pages):
+        page = read_page(file_name, p)
+        try:
+            updated = insert_record_data_to_page_data(page, record)
+            slot, _ = read_footer(page)
+            write_page(file_name, p, updated)
+            return p, slot
+        except ValueError:
+            pass
+
+    new_page = new_empty_page_bytes()
+    updated = insert_record_data_to_page_data(new_page, record)
+    append_page(file_name, updated)
+    return pages, 0
+
+
